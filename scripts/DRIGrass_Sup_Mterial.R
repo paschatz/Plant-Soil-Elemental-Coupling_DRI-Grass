@@ -176,7 +176,7 @@ figs1 <- ggdraw() +
 print(figs1)
 
 # Export:
-ggsave("exports/DRIGrass_Fig.S1.png", plot = figs1, width = 12, height = 15, dpi = 1200)
+ggsave("exports/DRIGrass_Fig.S1.tiff", plot = figs1, width = 12, height = 15, dpi = 1200)
 
 ##########################################################################################
 # Figure S2: Plant macronutrient bioavailability
@@ -238,8 +238,8 @@ figs2 <- gridExtra::grid.arrange(
 
 grid.draw(figs2)
 
-# Export to high-resolution PNG
-ggsave("exports/DRIGrass_Fig.S2.jpeg",plot = figs2, width = 10, height = 15, units = "in", dpi = 1200)
+# Export
+ggsave("exports/DRIGrass_Fig.S2.tiff",plot = figs2, width = 10, height = 15, units = "in", dpi = 1200)
 
 dev.new()
 grid.newpage()
@@ -280,10 +280,10 @@ figs3 <- gridExtra::grid.arrange(
   widths = unit.c(unit(1.5, "cm"), unit(1, "null"))
 )
 
-grid.draw(fig_micro)
+grid.draw(figs3)
 
 # Save to file
-ggsave("exports/DRIGrass_Fig.S3.jpeg", plot = figs3, width = 10, height = 15, units = "in", dpi = 1200)
+ggsave("exports/DRIGrass_Fig.S3.tiff", plot = figs3, width = 10, height = 15, units = "in", dpi = 1200)
 
 dev.off()
 grid.newpage()
@@ -362,7 +362,7 @@ models.tidy <- model_results %>%
   mutate(p.value = round(p.value, 3),
          sig = ifelse(p.value < 0.05, "sig", "ns"))
 
-# 1. Prepare Data
+# Prepare Data
 plot_data <- models.tidy %>%
   mutate(
     # --- Label Logic ---
@@ -374,30 +374,27 @@ plot_data <- models.tidy %>%
     ),
     
     # --- Panel Logic ---
-    # We create a grouping to stack Water plots separately from Herbivore plots
     Panel = case_when(
       str_detect(term, "Water") ~ "Water Treatment",
       str_detect(term, "Herbivore") ~ "Herbivory",
       TRUE ~ "Other"
     ),
     
-    # Force the order of elements (Optional)
+    # Force the order of elements
     element = factor(element, levels = sort(unique(element), decreasing = TRUE)),
     
-    # Set significance for alpha mapping
-    sig_alpha = ifelse(p.value < 0.05, "Significant", "NS")
-  ) %>%
-  # Filter to ensure we only plot what we want
+    # Set significance
+    sig_alpha = ifelse(p.value < 0.05, "Significant", "NS")) %>%
+  # Filter 
   filter(Panel %in% c("Water Treatment", "Herbivory"))
 
-# 2. Plot
+# Plot
 ggplot(plot_data, aes(x = estimate, y = element, color = Treatment_Label, group = Treatment_Label)) +
   
   # Reference Line
   geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
   
   # Error Bars & Points
-  # position_dodge(width = 0.7) separates the "Amount" vs "Frequency" dots
   geom_pointrange(
     aes(xmin = conf.low, xmax = conf.high, alpha = sig_alpha),
     size = 0.2,
@@ -406,20 +403,15 @@ ggplot(plot_data, aes(x = estimate, y = element, color = Treatment_Label, group 
   ) +
   
   # Faceting: 
-  # Rows: Panel (Water/Herbivore) + Medium (Soil/Plant)
-  # Columns: Year
   facet_grid(Panel + medium ~ Year, scales = "free_y") +
   
   # --- COLORS ---
-  # Distinct colors for the treatments to solve the overlap visibility
   scale_color_manual(values = c(
-    "Reduced Amount"    = "#D55E00", # Vermilion (Colorblind friendly)
-    "Reduced Frequency" = "#0072B2", # Blue
-    "+RH"= "#009E73"  # Green
-  )) +
+    "Reduced Amount"    = "#D55E00",
+    "Reduced Frequency" = "#0072B2",
+    "+RH"= "#009E73")) +
   
-  # --- ALPHA (Transparency) ---
-  # Non-significant results are faded (0.4), Significant are solid (1.0)
+  # Non-significant results are faded, Significant are solid
   scale_alpha_manual(values = c("NS" = 0.4, "Significant" = 1.0)) +
   
   theme_minimal() +
@@ -448,7 +440,7 @@ ggplot(plot_data, aes(x = estimate, y = element, color = Treatment_Label, group 
   )
 
 # GGsave:
-ggsave("exports/DRIGrass_Fig.SUP.png", width = 15, height = 15, units = "cm", dpi = 1200)
+ggsave("exports/DRIGrass_Fig.SUP.tiff", width = 15, height = 15, units = "cm", dpi = 1200)
 
 # Initialize list
 results_list.global <- list()
@@ -461,7 +453,7 @@ for (elm in elm.df) {
   f.water <- as.formula(paste0("scale(", elm, ") ~ Water.treatment"))
   f.herbivores <- as.formula(paste0("scale(", elm, ") ~ Herbivores"))
   
-  # RUN MODELS (Use 'datos' or your full dataset, not 'dat.year')
+  # RUN MODELS
   model.water <- lm(f.water, data = datos) 
   mode.herbivores <- lm(f.herbivores, data = datos)
   
@@ -487,11 +479,11 @@ model_results.global <- bind_rows(results_list.global)
 # --- DATA PREP ---
 plot_data_global <- model_results.global %>%
   mutate(
-    # 1. Create Significance Column
+    # Create Significance Column
     p.value = round(p.value, 3),
     sig_alpha = ifelse(p.value < 0.05, "Significant", "NS"),
     
-    # 2. Clean Labels for the Plot
+    # Clean Labels for the Plot
     Treatment_Label = case_when(
       term == "Water.treatmentReduced" ~ "Reduced Amount",
       term == "Water.treatmentAltered Frequency" ~ "Reduced Frequency",
@@ -499,45 +491,38 @@ plot_data_global <- model_results.global %>%
       TRUE ~ term
     ),
     
-    # 3. Create Panels (Water vs Herbivory)
+    # Create Panels (Water vs Herbivory)
     Panel = case_when(
       str_detect(term, "Water") ~ "Water Treatment",
       str_detect(term, "Herbivore") ~ "Herbivory",
       TRUE ~ "Other"
     ),
     
-    # 4. Set Factors for Ordering (Soil on top, Water on top)
+    # Set Factors for Ordering (Soil on top, Water on top)
     medium = factor(medium, levels = c("Soil", "Plant")),
-    Panel = factor(Panel, levels = c("Water Treatment", "Herbivory"))
-  ) %>%
-  # Optional: Order elements (N, P, K...) alphabetically or by importance
+    Panel = factor(Panel, levels = c("Water Treatment", "Herbivory"))) %>%
   mutate(element = factor(element, levels = sort(unique(element), decreasing = TRUE)))
 
 # --- PLOT ---
 ggplot(plot_data_global, aes(x = estimate, y = element, color = Treatment_Label, group = Treatment_Label)) +
   
-  # A. The Reference Line
+  # The Reference Line
   geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
   
-  # B. The Points & Error Bars
-  # position_dodge is crucial here to separate "Amount" vs "Frequency"
+  # The Points & Error Bars
   geom_pointrange(
     aes(xmin = conf.low, xmax = conf.high, alpha = sig_alpha),
     size = 0.3,
-    position = position_dodge(width = 0.6), # Adjust width if dots are too close/far
-    flatten = 0.1
-  ) +
+    position = position_dodge(width = 0.6),
+    flatten = 0.1) +
   
-  # C. The Layout (Vertical Stack, No Years)
-  # "Panel + medium ~ ." creates 4 rows: Water-Soil, Water-Plant, Herb-Soil, Herb-Plant
-  facet_grid(Panel + medium ~ ., scales = "free_y") +
+    facet_grid(Panel + medium ~ ., scales = "free_y") +
   
-  # D. Colors & Styling
+  # Colors & Styling
   scale_color_manual(values = c(
-    "Reduced Amount"    = "#D55E00", # Vermilion
-    "Reduced Frequency" = "#0072B2", # Blue
-    "Herbivores Removed"= "#009E73"  # Green
-  )) +
+    "Reduced Amount"    = "#D55E00",
+    "Reduced Frequency" = "#0072B2",
+    "Herbivores Removed"= "#009E73")) +
   
   scale_alpha_manual(values = c("NS" = 0.3, "Significant" = 1.0)) +
   
@@ -565,9 +550,5 @@ ggplot(plot_data_global, aes(x = estimate, y = element, color = Treatment_Label,
     legend.title = element_text(size = 6, color = "black", face = "bold")
   )
 
-ggsave("exports/DRIGrass_Fig.SUP_Global.png", width = 15, height = 15, units = "cm", dpi = 1200)
-
-
-
-
+ggsave("exports/DRIGrass_Fig.SUP_Global.tiff", width = 15, height = 15, units = "cm", dpi = 1200)
 

@@ -220,37 +220,6 @@ observed_long <- observed %>%
   mutate(type = recode(type, coupling_soil = "Soil", coupling_plant = "Plant"))
 
 ################################################
-# Figure 1 – Plant Soil Coupling
-################################################
-
-# Box plot of coupling per type
-fig.dat <- observed_long %>%
-  # rename leveles for type; soil to soils and plant to plants
-  mutate(type = recode(type, Soil = "Soils", Plant = "Plants")) %>%
-  mutate(type = as.factor(type))
-
-# Define custom colors
-custom_colors <- c("Plants" = "#42be71",   # greenish
-                   "Soils"  = "#fde725")   # orangeish
-# Publication-quality boxplot with custom colors
-fig1 <- ggplot(fig.dat, aes(x = type, y = value, fill = type)) +
-  geom_boxplot(alpha = 0.9, outlier.shape = NA, width = 0.6) +
-  geom_jitter(aes(color = type), width = 0.15, size = 1.5, alpha = 0.5, show.legend = FALSE) +
-  scale_fill_manual(values = custom_colors) +
-  scale_color_manual(values = custom_colors) +
-  labs(x = NULL, y = "Global Elemental coupling (|Spearman’s r|)") +
-  theme_bw(base_size = 14) +
-  theme(
-    legend.position = "none",
-    panel.grid = element_blank(),
-    axis.text = element_text(size = 12),
-    axis.title.y = element_text(size = 14))
-
-print(fig1)
-
-t.test(value ~ type, data = observed_long)
-
-################################################
 # Figure 1 – Treatment Coupling (Soil and Plant)
 ################################################
 # Shared scales and theme
@@ -339,8 +308,6 @@ grid::grid.draw(fig1)
 
 # Save to file
 ggsave("exports/DRIGrass_Fig1.tiff", plot = fig1, width = 9, height = 5, units = "in", dpi = 1200)
-ggsave("exports/DRIGrass_Fig1.jpeg", plot = fig1, width = 9, height = 5, units = "in", dpi = 1200)
-ggsave("exports/DRIGrass_Fig1.pdf", plot = fig1, width = 9, height = 5, units = "in", dpi = 1200)
 
 grid::grid.newpage()
 grid::grid.draw(fig1)
@@ -484,9 +451,7 @@ fig_soil <- coupling_plot_soil(
 fig_soil
 
 # Export soil coupling
-ggsave("exports/fig2.pdf", fig_soil, width = 12, height = 15, dpi = 1200)
 ggsave("exports/fig2.tiff", fig_soil, width = 12, height = 15, dpi = 1200)
-ggsave("exports/fig2.jpeg", fig_soil, width = 12, height = 15, dpi = 1200)
 
 ################################################
 # Figure 4 & 5 – Elemental coupling (Plant)
@@ -623,14 +588,10 @@ fig_micro <- coupling_plot_plant_v2(
   y_label = expression("Plant elemental coupling (|Spearman’s r|)"))
 
 # Export plant macronutrients
-ggsave("exports/fig4.pdf", fig_macro, width = 12, height = 15, dpi = 1200)
 ggsave("exports/fig4.tiff", fig_macro, width = 12, height = 15, dpi = 1200)
-ggsave("exports/fig4.jpeg", fig_macro, width = 12, height = 15, dpi = 1200)
 
 # Export plant micronutrients
-ggsave("exports/fig5.pdf", fig_micro, width = 12, height = 15, dpi = 1200)
 ggsave("exports/fig5.tiff", fig_micro, width = 12, height = 15, dpi = 1200)
-ggsave("exports/fig5.jpeg", fig_micro, width = 12, height = 15, dpi = 1200)
 
 # Linear mixed effect models:
 aov(elm_coupling ~ Water * Herbivores * as.factor(Year), data = obs_elm %>% filter(compartment == "soil")) %>%
@@ -737,7 +698,6 @@ lme(weight ~ log_weight * Water * Herbivores * Year, random = ~ 1 | Year,
 
 anova(lme_soil)
 
-# SOS: HERE ARE GROUPPED TOGETHER HERBIVORY AND NO-HERBIVORY TREATMENTS:
 summary.elm <- links_all_df %>%
   group_by(from, element, compartment, Water, atomic_weight, log_weight, elm_type) %>%
   summarise(elm.cor = mean(weight),
@@ -869,8 +829,6 @@ final_panel <- (p1 | p2 | p3) / (p4 | p5 | p6) +
 print(final_panel)
 
 ggsave("exports/fig3.tiff", final_panel, width = 10.5, height = 7.5, dpi = 1200)
-ggsave("exports/fig3.pdf", final_panel, width = 10.5, height = 7.5, dpi = 1200)
-ggsave("exports/fig3.jpeg", final_panel, width = 10.5, height = 7.5, dpi = 1200)
 
 ################################################
 # Figure S5 – Atomic mass - plant elm
@@ -989,8 +947,6 @@ final_panel.plants <- (p1.pl | p2.pl | p3.pl) / (p4.pl | p5.pl | p6.pl) +
 print(final_panel.plants)
 
 ggsave("exports/fig6.tiff", final_panel.plants, width = 10.5, height = 7.5, dpi = 1200)
-ggsave("exports/fig6.pdf", final_panel.plants, width = 10.5, height = 7.5, dpi = 1200)
-ggsave("exports/fig6.jpeg", final_panel.plants, width = 10.5, height = 7.5, dpi = 1200)
 
 ##############################################
 # Linear mixed effect models for soil coupling:
