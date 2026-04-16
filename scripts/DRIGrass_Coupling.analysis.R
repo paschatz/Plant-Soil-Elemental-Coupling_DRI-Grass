@@ -242,7 +242,6 @@ my_theme <- theme_minimal(base_size = 13) +
     legend.spacing.y = unit(0.2, "cm")
   )
 
-
 # Plot A – Soil
 plot_soil <- ggplot() +
   geom_jitter(data = null_long %>% filter(type == "Soil"),
@@ -448,10 +447,10 @@ fig_soil <- coupling_plot_soil(
   title_map = soil_title_map,
   show_legend = TRUE)
 
-fig_soil
+print(fig_soil)
 
 # Export soil coupling
-ggsave("exports/fig2.tiff", fig_soil, width = 12, height = 15, dpi = 1200)
+ggsave("exports/DRIGrass_Fig2.png", fig_soil, width = 12, height = 15, dpi = 1200)
 
 ################################################
 # Figure 4 & 5 – Elemental coupling (Plant)
@@ -520,7 +519,7 @@ coupling_plot_plant_v2 <- function(data, title_list, tag_list, y_label) {
                   alpha = 0.2, width = 0.2, size = 0.4) +
       geom_errorbar(data = dat,
                     aes(x = treatment, ymin = ci_low, ymax = ci_high),
-                    width = 0.2, color = "grey40") +
+                    width = 0.4, color = "grey40") +
       geom_point(data = dat,
                  aes(x = treatment, y = null_mean),
                  shape = 1, size = 2, color = "black") +
@@ -529,7 +528,7 @@ coupling_plot_plant_v2 <- function(data, title_list, tag_list, y_label) {
                  shape = 21, size = 3, color = "black") +
       geom_text(data = dat,
                 aes(x = treatment, y = obs + 0.02, label = sig),
-                size = 5, color = "black") +
+                size = 6, color = "black") +
       ylim(0, 0.8) +
       facet_wrap(~ Year, ncol = 3) +
       labs(y = "", x = "", title = title, tag = tag) +
@@ -580,6 +579,8 @@ fig_macro <- coupling_plot_plant_v2(
   tag_list = tags_macro,
   y_label = expression("Plant elemental coupling (|Spearman’s r|)"))
 
+grid::grid.draw(fig_macro)
+
 # Figure 5:
 fig_micro <- coupling_plot_plant_v2(
   micro_data,
@@ -588,10 +589,10 @@ fig_micro <- coupling_plot_plant_v2(
   y_label = expression("Plant elemental coupling (|Spearman’s r|)"))
 
 # Export plant macronutrients
-ggsave("exports/fig4.tiff", fig_macro, width = 12, height = 15, dpi = 1200)
+ggsave("exports/DRIGrass_Fig4.png", fig_macro, width = 10, height = 13, dpi = 1200)
 
 # Export plant micronutrients
-ggsave("exports/fig5.tiff", fig_micro, width = 12, height = 15, dpi = 1200)
+ggsave("exports/DRIGrass_Fig5.png", fig_micro, width = 10, height = 13, dpi = 1200)
 
 # Linear mixed effect models:
 aov(elm_coupling ~ Water * Herbivores * as.factor(Year), data = obs_elm %>% filter(compartment == "soil")) %>%

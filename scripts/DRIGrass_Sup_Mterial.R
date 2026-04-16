@@ -93,9 +93,9 @@ plant.anova <- anova.table %>%
 write.csv(soil.anova,"exports/DRIGrass_Table.S1.csv")
 
 write.csv(plant.anova,"exports/DRIGrass_Table.S2.csv")
-# -------------------------------------------------------------------------------------- #
+
 ##########################################################################################
-# Figure S1: Soil nutrient bioavailability
+# Figure S2: Soil nutrient bioavailability
 ##########################################################################################
 # Desired order (all -RH first, then +RH)
 wth_order <- c(
@@ -168,127 +168,20 @@ main_plot <- arrangeGrob(grobs = soil_plots_clean, ncol = 3,
                                          rot = 90, vjust = 1, gp = gpar(fontsize = 15)))
 
 # Combine with legend in bottom right corner
-figs1 <- ggdraw() +
+figs2 <- ggdraw() +
   draw_grob(main_plot) +
   draw_grob(legend, x = 0.78, y = 0.05, width = 0.15, height = 0.15)  # adjust x/y/size as needed
 
 # Print
-print(figs1)
+print(figs2)
 
 # Export:
-ggsave("exports/DRIGrass_Fig.S1.tiff", plot = figs1, width = 12, height = 15, dpi = 1200)
+ggsave("exports/DRIGrass_Fig.S2.tiff", plot = figs2, width = 12, height = 15, dpi = 1200)
 
 ##########################################################################################
-# Figure S2: Plant macronutrient bioavailability
+# Figure S3: Effect size
 ##########################################################################################
-# Plot function
-element_plot_plants <- function(var, title, tag) {
-  ggplot(plot.dat, aes(x = WTH, y = .data[[var]], fill = WTH)) +
-    geom_jitter(aes(colour = WTH), width = 0.15, alpha = 0.5) +
-    geom_boxplot(alpha = 0.75, outlier.shape = NA) +
-    geom_vline(xintercept = 3.5, color = "red", linetype = "dashed") +
-    labs(y = NULL, x = NULL, title = title, tag = tag) +
-    scale_fill_viridis_d(option = "D", end = 0.9, breaks = wth_order, drop = FALSE) +
-    scale_colour_viridis_d(option = "D", end = 0.9, breaks = wth_order, drop = FALSE) +
-    facet_wrap(~Year, ncol = 5) +
-    theme_bw(base_size = 13) +
-    guides(
-      fill   = guide_legend(nrow = 2, byrow = TRUE),
-      colour = guide_legend(nrow = 2, byrow = TRUE)) +
-    theme(
-      panel.grid = element_blank(),
-      panel.background = element_blank(),
-      axis.line = element_blank(),
-      axis.text.x = element_blank(),
-      legend.title = element_blank(),
-      legend.text = element_text(size = 16, color = "black"),
-      legend.key.size = unit(1.6, "lines"),
-      legend.box = "horizontal",
-      legend.background = element_rect(fill = alpha("white", 0.9), colour = "transparent"),
-      plot.title = element_text(hjust = 0.5),
-      panel.spacing.x = unit(0, "lines"),
-      strip.background = element_rect(fill = "white", color = "black"),
-      plot.margin = margin(0, 0, 0, 0.2, "cm"),
-      panel.border = element_rect(color = "black", fill = NA, size = 0.5)
-    )
-}
 
-# Generate list of plots
-tags_macro <- letters[1:length(plant.macro)]
-plant_macro.plots <- map2(plant.macro, seq_along(plant.macro), ~ {
-  element_plot_plants(.x, pl.macro.names[.y], paste0("(", tags_macro[.y], ")"))
-})
-
-# Combine with shared legend
-panel_macro <- wrap_plots(plant_macro.plots, ncol = 2, guides = "collect") +
-  plot_layout(guides = "collect") &
-  theme(legend.position = "bottom", legend.box = "horizontal")
-
-# Convert patchwork object to grob
-panel_macro_grob <- patchwork::patchworkGrob(panel_macro)
-
-# Combine Y label and plot panel in one figure
-figs2 <- gridExtra::grid.arrange(
-  textGrob(
-    expression("Plant elemental content (mg·kg"^"-1"*")"),
-    rot = 90, gp = gpar(fontsize = 13), just = "centre"),
-  panel_macro_grob,
-  ncol = 2,
-  widths = unit.c(unit(1.5, "cm"), unit(1, "null")))
-
-grid.draw(figs2)
-
-# Export
-ggsave("exports/DRIGrass_Fig.S2.tiff",plot = figs2, width = 10, height = 15, units = "in", dpi = 1200)
-
-dev.new()
-grid.newpage()
-
-##########################################################################################
-# Figure S3: Plant micronutrient bioavailability
-##########################################################################################
-# Create micronutrient plots
-tags_micro <- letters[1:length(plant.micro)]
-plant_micro.plots <- map2(plant.micro, seq_along(plant.micro), ~ {
-  element_plot_plants(.x, pl.micro.names[.y], paste0("(", tags_micro[.y], ")"))
-})
-
-# Create 2 empty placeholder plots
-empty_plot <- ggplot() + 
-  theme_void() + 
-  theme(plot.background = element_blank())
-
-# Add 2 blank plots to reach 8 total (4 rows x 2 columns)
-plant_micro.filled <- c(plant_micro.plots, list(empty_plot, empty_plot))
-
-# Combine plots with shared legend using patchwork
-panel_micro <- wrap_plots(plant_micro.filled, ncol = 2, nrow = 4, guides = "collect") +
-  plot_layout(guides = "collect") &
-  theme(legend.position = "bottom")
-
-# Convert patchwork object to grob
-panel_micro_grob <- patchwork::patchworkGrob(panel_micro)
-
-# Combine with shared Y-axis label
-figs3 <- gridExtra::grid.arrange(
-  textGrob(
-    expression("Plant micronutrient bioavailability (mg·kg"^"-1"*")"),
-    rot = 90, gp = gpar(fontsize = 16), just = "centre"
-  ),
-  panel_micro_grob,
-  ncol = 2,
-  widths = unit.c(unit(1.5, "cm"), unit(1, "null"))
-)
-
-grid.draw(figs3)
-
-# Save to file
-ggsave("exports/DRIGrass_Fig.S3.tiff", plot = figs3, width = 10, height = 15, units = "in", dpi = 1200)
-
-dev.off()
-grid.newpage()
-
-################################################################################
 # Proceed with Effect size:
 # Define variables
 # Set herbivores as factor
@@ -311,7 +204,7 @@ for (year in unique(datos$Year)) {
   # Filter data for the specific year
   dat.year <- datos %>% 
     filter(Year == year)
-    
+  
   # Loop over elements:
   for (elm in elm.df) {
     f.water <- as.formula(paste0("scale(", elm, ") ~ Water.treatment"))
@@ -440,7 +333,11 @@ ggplot(plot_data, aes(x = estimate, y = element, color = Treatment_Label, group 
   )
 
 # GGsave:
-ggsave("exports/DRIGrass_Fig.SUP.tiff", width = 15, height = 15, units = "cm", dpi = 1200)
+ggsave("exports/DRIGrass_Fig.S3.tiff", width = 15, height = 15, units = "cm", dpi = 1200)
+
+##########################################################################################
+# Figure S4: Effect size
+##########################################################################################
 
 # Initialize list
 results_list.global <- list()
@@ -516,7 +413,7 @@ ggplot(plot_data_global, aes(x = estimate, y = element, color = Treatment_Label,
     position = position_dodge(width = 0.6),
     flatten = 0.1) +
   
-    facet_grid(Panel + medium ~ ., scales = "free_y") +
+  facet_grid(Panel + medium ~ ., scales = "free_y") +
   
   # Colors & Styling
   scale_color_manual(values = c(
@@ -550,5 +447,114 @@ ggplot(plot_data_global, aes(x = estimate, y = element, color = Treatment_Label,
     legend.title = element_text(size = 6, color = "black", face = "bold")
   )
 
-ggsave("exports/DRIGrass_Fig.SUP_Global.tiff", width = 15, height = 15, units = "cm", dpi = 1200)
+ggsave("exports/DRIGrass_Fig.S4.tiff", width = 15, height = 15, units = "cm", dpi = 1200)
 
+##########################################################################################
+# Figure S5: Plant macronutrient bioavailability
+##########################################################################################
+# Plot function
+element_plot_plants <- function(var, title, tag) {
+  ggplot(plot.dat, aes(x = WTH, y = .data[[var]], fill = WTH)) +
+    geom_jitter(aes(colour = WTH), width = 0.15, alpha = 0.5) +
+    geom_boxplot(alpha = 0.75, outlier.shape = NA) +
+    geom_vline(xintercept = 3.5, color = "red", linetype = "dashed") +
+    labs(y = NULL, x = NULL, title = title, tag = tag) +
+    scale_fill_viridis_d(option = "D", end = 0.9, breaks = wth_order, drop = FALSE) +
+    scale_colour_viridis_d(option = "D", end = 0.9, breaks = wth_order, drop = FALSE) +
+    facet_wrap(~Year, ncol = 5) +
+    theme_bw(base_size = 13) +
+    guides(
+      fill   = guide_legend(nrow = 2, byrow = TRUE),
+      colour = guide_legend(nrow = 2, byrow = TRUE)) +
+    theme(
+      panel.grid = element_blank(),
+      panel.background = element_blank(),
+      axis.line = element_blank(),
+      axis.text.x = element_blank(),
+      legend.title = element_blank(),
+      legend.text = element_text(size = 16, color = "black"),
+      legend.key.size = unit(1.6, "lines"),
+      legend.box = "horizontal",
+      legend.background = element_rect(fill = alpha("white", 0.9), colour = "transparent"),
+      plot.title = element_text(hjust = 0.5),
+      panel.spacing.x = unit(0, "lines"),
+      strip.background = element_rect(fill = "white", color = "black"),
+      plot.margin = margin(0, 0, 0, 0.2, "cm"),
+      panel.border = element_rect(color = "black", fill = NA, size = 0.5)
+    )
+}
+
+# Generate list of plots
+tags_macro <- letters[1:length(plant.macro)]
+plant_macro.plots <- map2(plant.macro, seq_along(plant.macro), ~ {
+  element_plot_plants(.x, pl.macro.names[.y], paste0("(", tags_macro[.y], ")"))
+})
+
+# Combine with shared legend
+panel_macro <- wrap_plots(plant_macro.plots, ncol = 2, guides = "collect") +
+  plot_layout(guides = "collect") &
+  theme(legend.position = "bottom", legend.box = "horizontal")
+
+# Convert patchwork object to grob
+panel_macro_grob <- patchwork::patchworkGrob(panel_macro)
+
+# Combine Y label and plot panel in one figure
+figs5 <- gridExtra::grid.arrange(
+  textGrob(
+    expression("Plant elemental content (mg·kg"^"-1"*")"),
+    rot = 90, gp = gpar(fontsize = 13), just = "centre"),
+  panel_macro_grob,
+  ncol = 2,
+  widths = unit.c(unit(1.5, "cm"), unit(1, "null")))
+
+grid.draw(figs5)
+
+# Export
+ggsave("exports/DRIGrass_Fig.S5.tiff",plot = figs5, width = 10, height = 15, units = "in", dpi = 1200)
+
+dev.new()
+grid.newpage()
+
+##########################################################################################
+# Figure S6: Plant micronutrient bioavailability
+##########################################################################################
+# Create micronutrient plots
+tags_micro <- letters[1:length(plant.micro)]
+plant_micro.plots <- map2(plant.micro, seq_along(plant.micro), ~ {
+  element_plot_plants(.x, pl.micro.names[.y], paste0("(", tags_micro[.y], ")"))
+})
+
+# Create 2 empty placeholder plots
+empty_plot <- ggplot() + 
+  theme_void() + 
+  theme(plot.background = element_blank())
+
+# Add 2 blank plots to reach 8 total (4 rows x 2 columns)
+plant_micro.filled <- c(plant_micro.plots, list(empty_plot, empty_plot))
+
+# Combine plots with shared legend using patchwork
+panel_micro <- wrap_plots(plant_micro.filled, ncol = 2, nrow = 4, guides = "collect") +
+  plot_layout(guides = "collect") &
+  theme(legend.position = "bottom")
+
+# Convert patchwork object to grob
+panel_micro_grob <- patchwork::patchworkGrob(panel_micro)
+
+# Combine with shared Y-axis label
+figs6 <- gridExtra::grid.arrange(
+  textGrob(
+    expression("Plant micronutrient bioavailability (mg·kg"^"-1"*")"),
+    rot = 90, gp = gpar(fontsize = 16), just = "centre"
+  ),
+  panel_micro_grob,
+  ncol = 2,
+  widths = unit.c(unit(1.5, "cm"), unit(1, "null"))
+)
+
+grid.draw(figs6)
+
+# Save to file
+ggsave("exports/DRIGrass_Fig.S6.tiff", plot = figs6, width = 10, height = 15, units = "in", dpi = 1200)
+
+dev.off()
+grid.newpage()
