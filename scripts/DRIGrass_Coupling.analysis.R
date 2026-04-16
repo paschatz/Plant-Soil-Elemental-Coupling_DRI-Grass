@@ -236,8 +236,8 @@ my_theme <- theme_minimal(base_size = 13) +
     axis.text.x = element_blank(),
     panel.grid = element_blank(),
     legend.title = element_blank(),
-    strip.background = element_rect(fill = "white", color = "black", linewidth = 0.7),
-    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.7),
+    strip.background = element_rect(fill = "white", color = "black", linewidth = 0.5),
+    panel.border = element_rect(color = "black", fill = NA),
     strip.text = element_text(size = 11, face = "bold"),
     legend.spacing.y = unit(0.2, "cm")
   )
@@ -249,7 +249,7 @@ plot_soil <- ggplot() +
               alpha = 0.2, width = 0.25, size = 0.7) +
   geom_errorbar(data = summary_df,
                 aes(x = treatment, ymin = ci_low_soil, ymax = ci_high_soil),
-                width = 0.2, color = "grey40") +
+                width = 0.4, color = "grey40") +
   geom_point(data = summary_df,
              aes(x = treatment, y = obs_soil, fill = treatment),
              shape = 21, size = 3, color = "black") +
@@ -269,7 +269,7 @@ plot_plant <- ggplot() +
               alpha = 0.2, width = 0.25, size = 0.7) +
   geom_errorbar(data = summary_df,
                 aes(x = treatment, ymin = ci_low_plant, ymax = ci_high_plant),
-                width = 0.2, color = "grey40") +
+                width = 0.4, color = "grey40") +
   geom_point(data = summary_df,
              aes(x = treatment, y = obs_plant, fill = treatment),
              shape = 21, size = 3, color = "black") +
@@ -394,7 +394,7 @@ coupling_plot_soil <- function(data, title_map, show_legend = FALSE) {
                     alpha = 0.2, width = 0.2, size = 0.4, show.legend = FALSE) +
         geom_errorbar(data = dat,
                       aes(x = treatment, ymin = ci_low, ymax = ci_high),
-                      width = 0.2, color = "grey40") +
+                      width = 0.4, color = "grey40") +
         geom_point(data = dat,
                    aes(x = treatment, y = null_mean),
                    shape = 1, size = 2, color = "black") +
@@ -450,7 +450,7 @@ fig_soil <- coupling_plot_soil(
 print(fig_soil)
 
 # Export soil coupling
-ggsave("exports/DRIGrass_Fig2.png", fig_soil, width = 12, height = 15, dpi = 1200)
+ggsave("exports/DRIGrass_Fig2.jpeg", fig_soil, width = 12, height = 15, dpi = 1200)
 
 ################################################
 # Figure 4 & 5 – Elemental coupling (Plant)
