@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: "Chatzopoulos"
+    given-names: "Paschalis"
+    orcid: "https://orcid.org/0000-0002-3456-7203"
+  - family-names: "Ochoa-Hueso"
+    given-names: "Raul"
+    orcid: "https://orcid.org/0000-0002-1839-6926"
+title: "Code for: Plant and soil elemental coupling in response to experimentally altered precipitation and root herbivory in an Australian grassland"
+version: "1.1.0"
+doi: ""
+date-released: 2026-04-16
+url: "https://github.com/paschatz/Plant-Soil-Elemental-Coupling_DRI-Grass"
